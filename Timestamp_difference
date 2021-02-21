@@ -1,0 +1,50 @@
+
+#!/bin/bash
+file1=/export/home/ku/abc
+ora_time=`ls -ltr $file1 |awk '{print $6,$7}'`
+#ora_time=`ls -ltr $file1 |awk '{print $6,$7,$8}'`
+echo $ora_time
+
+dat=`date '+%b %d'`
+
+#dat=`date '+%b %d %Y'`
+#dat=`date|cut -d : -f1,2 |awk '{print $(NF-2),$(NF-1),$NF}'`
+echo $dat
+
+if [ "$ora_time" == "$dat" ]
+then
+  echo "file is created on same date"
+
+         old=`ls -ltr $file1 |awk '{print $8}'`
+         new=`date +"%H:%M"`
+
+        # feeding variables by using read and splitting with IFS
+        IFS=: read old_hour old_min <<< "$old"
+        IFS=: read hour min <<< "$new"
+
+        # convert hours to minutes
+        # the 10# is there to avoid errors with leading zeros
+        # by telling bash that we use base 10
+        total_old_minutes=$((10#$old_hour*60 + 10#$old_min))
+        total_minutes=$((10#$hour*60 + 10#$min))
+
+        echo "the difference is $((total_minutes - total_old_minutes)) minutes"
+        diff=$((total_minutes - total_old_minutes))
+
+        if [ $diff -gt 45 ]
+        then
+                echo "something wrong with oraparam"
+        else
+                echo "eveything is good"
+        fi
+else
+  echo "file is not created on same date"
+  #mail -
+fi
+
+: ' if [ "$ora_time" -gt "$dat" ]
+then
+  echo "file is created on same date"
+else
+  echo "file is not created on same date"
+fi '
